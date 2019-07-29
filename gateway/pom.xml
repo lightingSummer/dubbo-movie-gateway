@@ -20,6 +20,7 @@
         <springboot-dubbo.version>2.0.0</springboot-dubbo.version>
         <lombok.version>1.18.8</lombok.version>
         <zk-client.version>0.9</zk-client.version>
+        <cinema-api.version>1.0.0</cinema-api.version>
     </properties>
 
     <dependencies>
@@ -46,6 +47,11 @@
             <groupId>club.lightingsummer.movie</groupId>
             <artifactId>film-api</artifactId>
             <version>${film-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>club.lightingsummer.movie</groupId>
+            <artifactId>cinema-api</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
