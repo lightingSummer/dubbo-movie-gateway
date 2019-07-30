@@ -26,7 +26,7 @@ import java.util.List;
 public class CinemaController {
     private static final Logger logger = LoggerFactory.getLogger(CinemaController.class);
 
-    @Reference(interfaceClass = CinemaInfoAPI.class, check = false)
+    @Reference(interfaceClass = CinemaInfoAPI.class, cache = "lru",connections = 10,check = false)
     private CinemaInfoAPI cinemaInfoAPI;
 
     /**
