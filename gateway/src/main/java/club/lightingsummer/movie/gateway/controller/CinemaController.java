@@ -7,6 +7,7 @@ import club.lightingsummer.movie.gateway.vo.CinemaConditionResponseVO;
 import club.lightingsummer.movie.gateway.vo.CinemaFieldResponseVO;
 import club.lightingsummer.movie.gateway.vo.CinemaFieldsResponseVO;
 import club.lightingsummer.movie.gateway.vo.ResponseVO;
+import club.lightingsummer.movie.order.api.api.OrderInfoAPI;
 import com.alibaba.dubbo.config.annotation.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,11 @@ import java.util.List;
 public class CinemaController {
     private static final Logger logger = LoggerFactory.getLogger(CinemaController.class);
 
-    @Reference(interfaceClass = CinemaInfoAPI.class, cache = "lru",connections = 10,check = false)
+    @Reference(interfaceClass = CinemaInfoAPI.class, cache = "lru", connections = 10, check = false)
     private CinemaInfoAPI cinemaInfoAPI;
+
+    @Reference(interfaceClass = OrderInfoAPI.class, check = false)
+    private OrderInfoAPI orderInfoAPI;
 
     /**
      * @author: lightingSummer
@@ -111,8 +115,10 @@ public class CinemaController {
             FilmInfoVO filmInfoVO = cinemaInfoAPI.getFilmInfoByFieldId(fieldId);
             // 选座信息
             HallInfoVO hallInfoVO = cinemaInfoAPI.getFilmFieldInfo(fieldId);
-            // 造几个销售的假数据，后续会对接订单接口
-            hallInfoVO.setSoldSeats("1,2,3");
+            // 调用order模块获取已售座位
+            String soldSeats = orderInfoAPI.getSoldSeatsByFieldId(fieldId);
+            hallInfoVO.setSoldSeats(soldSeats);
+            // 封装返回vo
             CinemaFieldResponseVO cinemaFieldResponseVO = new CinemaFieldResponseVO();
             cinemaFieldResponseVO.setCinemaInfo(cinemaInfoVO);
             cinemaFieldResponseVO.setFilmInfo(filmInfoVO);

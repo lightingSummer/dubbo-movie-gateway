@@ -21,6 +21,7 @@
         <lombok.version>1.18.8</lombok.version>
         <zk-client.version>0.9</zk-client.version>
         <cinema-api.version>1.0.0</cinema-api.version>
+        <order-api.version>1.0.0</order-api.version>
     </properties>
 
     <dependencies>
@@ -51,6 +52,11 @@
         <dependency>
             <groupId>club.lightingsummer.movie</groupId>
             <artifactId>cinema-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>club.lightingsummer.movie</groupId>
+            <artifactId>order-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
