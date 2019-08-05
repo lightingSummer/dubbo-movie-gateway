@@ -1,6 +1,7 @@
 package club.lightingsummer.movie.gateway.controller;
 
 import club.lightingsummer.movie.gateway.interceptor.HostHolder;
+import club.lightingsummer.movie.gateway.util.TokenBucket;
 import club.lightingsummer.movie.gateway.vo.ResponseVO;
 import club.lightingsummer.movie.order.api.api.OrderInfoAPI;
 import club.lightingsummer.movie.order.api.vo.OrderVO;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
+    private static TokenBucket tokenBucket = new TokenBucket();
+
     @Reference(interfaceClass = OrderInfoAPI.class, check = false)
     private OrderInfoAPI orderInfoAPI;
     @Autowired
@@ -37,25 +40,29 @@ public class OrderController {
     @RequestMapping(value = "buyTickets", method = RequestMethod.POST)
     public ResponseVO buyTickets(Integer fieldId, String soldSeats, String seatsName) {
         try {
-            // 参数合法性校验
-            if (fieldId == null || soldSeats == null || seatsName == null) {
-                return ResponseVO.serviceFail("参数不合法");
+            if (tokenBucket.getTokens()) {
+                // 参数合法性校验
+                if (fieldId == null || soldSeats == null || seatsName == null) {
+                    return ResponseVO.serviceFail("参数不合法");
+                }
+                // 验证用户登录信息
+                if (hostHolder.getUser() == null) {
+                    return ResponseVO.serviceFail("用户未登录");
+                }
+                // 验证座位合法性
+                if (!orderInfoAPI.isTrueSeats(fieldId + "", soldSeats)) {
+                    return ResponseVO.serviceFail("该座位不存在");
+                }
+                // 已经售出的票，有没有要请求的票
+                if (!orderInfoAPI.isNotSoldSeats(fieldId + "", soldSeats)) {
+                    return ResponseVO.serviceFail("所选座位已经售出");
+                }
+                // 创建订单信息
+                OrderVO orderVO = orderInfoAPI.saveOrderInfo(fieldId, soldSeats, seatsName, hostHolder.getUser());
+                return ResponseVO.success(orderVO);
+            } else {
+                return ResponseVO.serviceFail("当前购票人数过多，请稍后再试");
             }
-            // 验证用户登录信息
-            if(hostHolder.getUser() == null){
-                return ResponseVO.serviceFail("用户未登录");
-            }
-            // 验证座位合法性
-            if (!orderInfoAPI.isTrueSeats(fieldId + "", soldSeats)) {
-                return ResponseVO.serviceFail("该座位不存在");
-            }
-            // 已经售出的票，有没有要请求的票
-            if (!orderInfoAPI.isNotSoldSeats(fieldId + "", soldSeats)) {
-                return ResponseVO.serviceFail("所选座位已经售出");
-            }
-            // 创建订单信息
-            OrderVO orderVO = orderInfoAPI.saveOrderInfo(fieldId, soldSeats, seatsName, hostHolder.getUser());
-            return ResponseVO.success(orderVO);
         } catch (Exception e) {
             logger.error("购票失败" + e.getMessage());
             return ResponseVO.serviceFail("购票失败，系统异常");
@@ -83,7 +90,7 @@ public class OrderController {
             Page<OrderVO> orderInfo = orderInfoAPI.getOrderByUserId(userId, request);
             return ResponseVO.success(orderInfo);
         } catch (Exception e) {
-            logger.error("用户订单查询失败"+e.getMessage());
+            logger.error("用户订单查询失败" + e.getMessage());
             return ResponseVO.serviceFail("用户订单查询失败");
         }
     }
