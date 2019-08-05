@@ -7,6 +7,7 @@ import club.lightingsummer.movie.order.api.api.OrderInfoAPI;
 import club.lightingsummer.movie.order.api.vo.OrderVO;
 import club.lightingsummer.movie.order.api.vo.Page;
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/order/")
+@SuppressWarnings("UnstableApiUsage")
 public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
-    private static TokenBucket tokenBucket = new TokenBucket();
+    // 谷歌令牌桶限流
+    private static  final RateLimiter rateLimiter = RateLimiter.create(10);
 
     @Reference(interfaceClass = OrderInfoAPI.class, check = false)
     private OrderInfoAPI orderInfoAPI;
@@ -40,7 +43,7 @@ public class OrderController {
     @RequestMapping(value = "buyTickets", method = RequestMethod.POST)
     public ResponseVO buyTickets(Integer fieldId, String soldSeats, String seatsName) {
         try {
-            if (tokenBucket.getTokens()) {
+            if (rateLimiter.tryAcquire()) {
                 // 参数合法性校验
                 if (fieldId == null || soldSeats == null || seatsName == null) {
                     return ResponseVO.serviceFail("参数不合法");
