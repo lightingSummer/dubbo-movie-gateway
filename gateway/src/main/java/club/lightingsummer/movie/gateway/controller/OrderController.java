@@ -8,6 +8,8 @@ import club.lightingsummer.movie.order.api.vo.OrderVO;
 import club.lightingsummer.movie.order.api.vo.Page;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.common.util.concurrent.RateLimiter;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +37,28 @@ public class OrderController {
     @Autowired
     private HostHolder hostHolder;
 
+    public ResponseVO error(Integer fieldId,String soldSeats,String seatsName){
+        return ResponseVO.serviceFail("抱歉，下单的人太多了，请稍后重试");
+    }
+
     /**
      * @author: lightingSummer
      * @date: 2019/8/4 0004
      * @description: 购票
      */
+    @HystrixCommand(fallbackMethod = "error", commandProperties = {
+            @HystrixProperty(name = "execution.isolation.strategy", value = "THREAD"),
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "4000"),
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+            @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50")},
+            threadPoolProperties = {
+                    @HystrixProperty(name = "coreSize", value = "1"),
+                    @HystrixProperty(name = "maxQueueSize", value = "10"),
+                    @HystrixProperty(name = "keepAliveTimeMinutes", value = "1000"),
+                    @HystrixProperty(name = "queueSizeRejectionThreshold", value = "8"),
+                    @HystrixProperty(name = "metrics.rollingStats.numBuckets", value = "12"),
+                    @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "1500")
+            })
     @RequestMapping(value = "buyTickets", method = RequestMethod.POST)
     public ResponseVO buyTickets(Integer fieldId, String soldSeats, String seatsName) {
         try {

@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class HostHolder {
-    private ThreadLocal<Integer> user = new ThreadLocal<>();
+    // 父线程传给子线程 hystrix线程隔离
+    private InheritableThreadLocal<Integer> user = new InheritableThreadLocal<>();
 
     public void addUser(int userId) {
         user.set(userId);
