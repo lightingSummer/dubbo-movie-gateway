@@ -91,6 +91,7 @@ movie-gateway
         }
     }
   ```
+
 * 令牌桶限流算法<br>
 ![](https://upload-images.jianshu.io/upload_images/13670604-782edda532646656.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/421/format/webp)<br>
   令牌桶的限流算法大题思路是固定时间固定生成令牌，令牌数量有最大值，获取到令牌的请求会被处理，否则直接返回错误信息<br>
@@ -143,11 +144,11 @@ movie-gateway
             }
         }
     }
-}
+  }
   ```
   附上谷歌的文件，RateLimiter里提供tryAcquire()和acquire()，其中acquire()请求不到会一直阻塞，都是基于令牌桶思路<br>
   谷歌代码是对比获得令牌的时间和当前时间作对比，其中使用了底层的计时器来计算时间，不得不佩服谷歌的代码质量<br>
-  ···
+  ```java
   public boolean tryAcquire(int permits, long timeout, TimeUnit unit) {
         long timeoutMicros = Math.max(unit.toMicros(timeout), 0L);
         checkPermits(permits);
@@ -164,7 +165,7 @@ movie-gateway
         this.stopwatch.sleepMicrosUninterruptibly(microsToWait);
         return true;
     }
-  ···
+  ```
   
   * hystrix熔断器做限流<br>
     hystrix是springcloud里的，感觉用在dubbo里怪怪的。<br>
