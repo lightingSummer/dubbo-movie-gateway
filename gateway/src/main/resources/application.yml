@@ -5,3 +5,8 @@ spring:
     registry: zookeeper://localhost:2181
 server:
   port: 8085
+logging:
+  level:
+    club:
+      lightingsummer:
+       movie: debug

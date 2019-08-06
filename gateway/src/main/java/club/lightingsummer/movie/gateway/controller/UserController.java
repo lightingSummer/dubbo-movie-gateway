@@ -8,9 +8,7 @@ import club.lightingsummer.movie.userapi.bo.UserModel;
 import com.alibaba.dubbo.config.annotation.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RequestMapping("/user/")
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -55,7 +54,7 @@ public class UserController {
             if (commonResponse.getStatus() != 0) {
                 return ResponseVO.serviceFail(commonResponse.getMsg());
             }
-            if ((boolean) commonResponse.getData()) {
+            if (!(boolean) commonResponse.getData()) {
                 return ResponseVO.success("用户名不存在");
             } else {
                 return ResponseVO.serviceFail("用户名已存在");

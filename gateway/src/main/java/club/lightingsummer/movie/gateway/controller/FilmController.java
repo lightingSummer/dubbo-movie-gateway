@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
  */
 @RestController
 @RequestMapping("/film/")
+@CrossOrigin(origins = "*",maxAge = 3600)
 public class FilmController {
     private static final Logger logger = LoggerFactory.getLogger(FilmController.class);
 
