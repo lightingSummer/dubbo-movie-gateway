@@ -195,6 +195,8 @@ movie-gateway
     但是因为hystrix是线程池，复用之前存在的线程，可能会导致取到的sessionId不对？百度比较推荐阿里的ttl，这边以后有时间好好研究下。<br>
   * 搭建ftp服务器<br>
     七牛云的测试域名被回收了，临时搭了一下ftp服务器用于存放文件，以便于调试<br>
+  * TCC分布式事务<br>
+    ![](https://img-blog.csdnimg.cn/20190928162929333.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI3NTcwMjA1)<br>
     
 # 以后学习的一些地方<br>
 * 排行榜改成redis，学习分布式事务改进项目<br>
